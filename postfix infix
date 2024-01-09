@@ -1,0 +1,205 @@
+1. If a character is an operand push it to Stack
+2. If the character is an operator
+Pop two elements from the Stack.
+Operate on these elements according to the operator, and push the result back to the Stack
+3. Step 1 and 2 will be repeated until the end has reached.
+4. The Result is stored at the top of the Stack,
+return it
+5. End.
+
+CODE:-
+
+#include<stdio.h>
+int stack[20];
+int top = -1;
+ void push(int x)
+{
+    stack[++top] = x;
+}
+int pop()
+{
+    return stack[top--];
+}
+int main()
+{
+    char exp[20];
+    char *e;
+    int n1,n2,n3,num;
+    printf("Enter the expression : ");
+    scanf("%s",exp);
+    e = exp;
+    while(*e != '\0')
+    {
+        if(isdigit(*e))
+        {
+            num = *e - 48;
+            push(num);
+        }
+        else
+        {
+            n1 = pop();
+            n2 = pop();
+            switch(*e)
+            {
+            case '+':
+            {
+                n3 = n1 + n2;
+               break;
+            }
+            case '-':
+            {
+                n3 = n2 - n1;
+                break;
+            }
+            case '*':
+            {
+                n3 = n1 * n2;
+                break;
+            }
+            case '/':
+            {
+                n3 = n2 / n1;
+                break;
+            }
+            }
+            push(n3);
+        }
+        e++;
+    }
+    printf("\nThe result of expression %s  =  %d\n\n",exp,pop());
+    return 0;
+}
+
+infix to postfix expression using stack
+ 1. Scan all the symbols one by one from left to right in the given Infix Expression.
+ 2. If the reading symbol is an operand, then immediately append it to the Postfix Expression.
+ 3. If the reading symbol is left parenthesis ‘( ‘, then Push it onto the Stack.
+ 4. If the reading symbol is right parenthesis ‘)’, then Pop all the contents of the stack until the respective left            parenthesis is popped and append each popped symbol to Postfix Expression.
+ 5. If the reading symbol is an operator (+, –, *, /), then Push it onto the Stack. However, first, pop the    operators which are already on the stack that have higher or equal precedence than the current operator and append them to the postfix. If an open parenthesis is there on top of the stack then push the operator into the stack.
+6.   If the input is over, pop all the remaining symbols from the stack and append them to the postfix.
+   CODE:-
+#include <stdio.h>
+#include<stdlib.h>
+#include <string.h>
+typedef struct stack
+{
+    int size;
+    int top;
+    char *arr;
+}
+ S;
+int stackTop(S *ptr)
+{
+    return ptr->arr[ptr->top];
+}
+int isEmpty(S *ptr)
+{
+    if (ptr->top == -1)
+{
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+int isFull(S *ptr)
+{
+    if (ptr->top == ptr->size - 1)
+    {
+ return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+void push(S *ptr, char val)
+{
+    if (isFull(ptr))
+    {
+        printf("Stack Overflow\n");
+    }
+    else
+    {
+        ptr->top++;
+        ptr->arr[ptr->top] = val;
+    }
+}
+char pop(S *ptr)
+{
+    if (isEmpty(ptr))
+    {
+        printf("Stack Underflow\n");
+        return -1;
+    }
+    else
+    {
+        char val = ptr->arr[ptr->top];
+        ptr->top--;
+        return val;
+    }
+}
+int precedence(char ch)
+{
+    if (ch == '*' || ch == '/')
+        return 3;
+    else if (ch == '+' || ch == '-')
+        return 2;
+    else
+        return 0;
+}
+int isOperator(char ch)
+{
+    if (ch == '*' || ch == '/' || ch == '+' || ch == '-')
+        return 1;
+    else
+        return 0;
+}
+char *infixToPostfix(char *infix)
+{
+    S *s = (S *)malloc(sizeof(S));
+    s->size = 20;
+    s->top = -1;
+    s->arr = (char *)malloc(s->size * sizeof(char));
+    char *postfix = (char *)malloc(strlen(infix) + 1 * sizeof(char));
+    int i = 0; 
+    int j = 0; 
+    while (infix[i] != '\0')
+    {
+        if (!isOperator(infix[i]))
+        {
+            postfix[j] = infix[i];
+            j++;
+            i++;
+        }
+        else
+        {
+            if (precedence(infix[i]) > precedence(stackTop(s)))
+            {
+                push(s, infix[i]);
+                i++;
+            }
+            else
+            {
+                postfix[j] = pop(s);
+                j++;
+            }
+        }
+    }
+    while (!isEmpty(s))
+    {
+        postfix[j] = pop(s);
+        j++;
+    }
+    postfix[j] = '\0';
+    return postfix;
+}
+int main()
+{
+    char ch[100];
+    printf("Enter the infix Expression \n");
+    gets(ch);
+    printf("\nPostfix of (%s) infix is (%s)\n", ch, infixToPostfix(ch));
+  return 0;
+}
